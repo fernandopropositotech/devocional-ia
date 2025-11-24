@@ -4,21 +4,40 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gerador de Devocionais</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
   <div class="container">
     <h1>Gerador de Devocionais</h1>
 
-    <label for="tema">Tema do Devocional</label>
-    <input type="text" id="tema" placeholder="Ex: Fé em tempos difíceis" />
+    <input id="tema" type="text" placeholder="Digite o tema do devocional" />
 
     <button onclick="gerarDevocional()">Gerar Devocional</button>
 
-    <div id="result"></div>
+    <div id="resultado"></div>
   </div>
 
-  <script src="app.js"></script>
+  <script>
+    async function gerarDevocional() {
+      const tema = document.getElementById("tema").value;
+      const resultado = document.getElementById("resultado");
+
+      resultado.innerHTML = "<p>Gerando devocional...</p>";
+
+      try {
+        const resposta = await fetch("/api/devocional", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tema })
+        });
+
+        const dados = await resposta.json();
+        resultado.innerHTML = `<pre>${dados.texto}</pre>`;
+      } catch (erro) {
+        resultado.innerHTML = "<p>Erro ao gerar devocional.</p>";
+      }
+    }
+  </script>
 </body>
 </html>
