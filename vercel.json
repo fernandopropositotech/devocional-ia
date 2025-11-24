@@ -1,11 +1,9 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/devocional.js", "use": "@vercel/node" },
-    { "src": "public/**/*", "use": "@vercel/static" }
+    { "src": "api/devocional.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/devocional.js" },
-    { "src": "/(.*)", "dest": "/public/index.html" }
+    { "src": "/api/devocional", "dest": "/api/devocional.js" }
   ]
 }

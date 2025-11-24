@@ -1,41 +1,42 @@
-import fetch from "node-fetch";
-
-export default async (req, res) => {
+export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método não permitido" });
-  }
-
-  const { tema } = req.body;
-
-  if (!tema || tema.trim() === "") {
-    return res.status(400).json({ error: "Tema é obrigatório" });
+    return res.status(405).json({ erro: "Método não permitido." });
   }
 
   try {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "mixtral-8x7b-32768",
-        messages: [
-          {
-            role: "user",
-            content: `Crie um devocional cristão profundo, bíblico e motivacional sobre o tema: ${tema}`
-          }
-        ]
-      })
-    });
+    const { tema } = req.body;
 
-    const data = await response.json();
+    if (!tema || tema.trim() === "") {
+      return res.status(400).json({ erro: "Tema é obrigatório." });
+    }
+
+    const resposta = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.GROQ_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "llama3-8b-8192",
+          messages: [
+            {
+              role: "user",
+              content: `Crie um devocional curto e profundo sobre o tema: ${tema}`
+            }
+          ]
+        })
+      }
+    );
+
+    const json = await resposta.json();
 
     return res.status(200).json({
-      texto: data.choices?.[0]?.message?.content || "Não foi possível gerar o devocional."
+      texto: json.choices?.[0]?.message?.content || "Sem resposta da IA."
     });
-
-  } catch (err) {
-    return res.status(500).json({ error: "Erro no servidor", detalhes: err.message });
+  } catch (error) {
+    console.error("ERRO NA API:", error);
+    return res.status(500).json({ erro: "Erro interno na API." });
   }
-};
+}
