@@ -1,37 +1,41 @@
-export default async function handler(req, res) {
+import fetch from "node-fetch";
+
+export default async (req, res) => {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Método não permitido" });
+  }
+
   const { tema } = req.body;
+
+  if (!tema || tema.trim() === "") {
+    return res.status(400).json({ error: "Tema é obrigatório" });
+  }
 
   try {
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: "llama-3.1-70b-versatile",
+        model: "mixtral-8x7b-32768",
         messages: [
           {
-            role: "system",
-            content: "Você é um devocionista reformado, centrado em Cristo, profundo e bíblico."
-          },
-          {
             role: "user",
-            content: `Crie um devocional completo sobre ${tema}.
-            Estrutura:
-            - Título
-            - Passagem base (com referência)
-            - Reflexão teológica
-            - Aplicação prática
-            - Oração final`
+            content: `Crie um devocional cristão profundo, bíblico e motivacional sobre o tema: ${tema}`
           }
         ]
       })
     });
 
     const data = await response.json();
-    res.status(200).json({ texto: data.choices[0].message.content });
-  } catch (error) {
-    res.status(500).json({ erro: "Falha ao gerar devocional" });
+
+    return res.status(200).json({
+      texto: data.choices?.[0]?.message?.content || "Não foi possível gerar o devocional."
+    });
+
+  } catch (err) {
+    return res.status(500).json({ error: "Erro no servidor", detalhes: err.message });
   }
-}
+};

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Devocional IA</title>
+</head>
+<body>
+  <h1>Gerador de Devocional</h1>
+
+  <input id="tema" type="text" placeholder="Digite o tema">
+  <button onclick="gerarDevocional()">Gerar</button>
+
+  <div id="result" style="margin-top:20px; white-space:pre-wrap;"></div>
+
+  <script>
+    async function gerarDevocional() {
+      const tema = document.getElementById("tema").value;
+      const resultDiv = document.getElementById("result");
+
+      if (!tema.trim()) {
+        resultDiv.innerHTML = "Digite um tema.";
+        return;
+      }
+
+      resultDiv.innerHTML = "Gerando devocional... 🙏";
+
+      try {
+        const response = await fetch("/api/devocional", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tema })
+        });
+
+        const data = await response.json();
+        resultDiv.innerHTML = data.texto;
+
+      } catch (err) {
+        resultDiv.innerHTML = "Erro ao conectar com o servidor.";
+      }
+    }
+  </script>
+</body>
+</html>
